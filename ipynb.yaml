@@ -27,6 +27,11 @@ parameter_groups:
   - chef_version
 
 parameters:
+  test_parameter:
+    type: boolean
+    description: |
+      True if you want true conditions to show, otherwise false
+    default: true
 
   server_hostname:
     label: Server Name
@@ -118,7 +123,11 @@ resources:
   ipynb_server:
     type: "Rackspace::Cloud::Server"
     properties:
+      {% if test_parameter|default(true, true) %}
+      name: "Truthy Server"
+      {% else %}
       name: { get_param: server_hostname }
+      {% endif %}
       flavor: { get_param: flavor }
       image: { get_param: image }
       key_name: { get_resource: ssh_key }
