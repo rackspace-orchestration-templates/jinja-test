@@ -13,7 +13,7 @@ parameters:
 
 resources:
 
-  {% if use_neutron|default(true, true) %}
+  {% if use_neutron|default("true")|lower  == 'true' %}
   network:
     type: OS::Neutron::Net
     properties:
