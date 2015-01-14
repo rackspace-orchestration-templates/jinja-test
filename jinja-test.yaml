@@ -1,0 +1,78 @@
+heat_template_version: 2014-10-16
+
+description: |
+  Test template using Neutron
+
+parameters:
+
+  use_neutron:
+    type: boolean
+    description: |
+      True if you want to deploy neutron, false if you want to use legacy nova networks
+    default: true
+
+resources:
+
+  {% if use_neutron|default(true, true) %}
+  network:
+    type: OS::Neutron::Net
+    properties:
+      name:
+        str_replace:
+          template: stack-net
+          params:
+            stack: { get_param: "OS::stack_name" }
+
+  subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network: { get_resource: network }
+      cidr: 192.168.0.0/24
+      name:
+        str_replace:
+          template: stack-subnet
+          params:
+            stack: { get_param: "OS::stack_name" }
+
+  port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: network }
+      fixed_ips:
+      - subnet: { get_resource: subnet }
+      name:
+        str_replace:
+          template: stack-port
+          params:
+            stack: { get_param: "OS::stack_name" }
+  {% else %}
+  network:
+    type: Rackspace::Cloud::Network
+    properties:
+      label:
+        str_replace:
+          template: stack-net
+          params:
+            stack: { get_param: "OS::stack_name" }
+      cidr: 192.168.0.0/24
+   {% endif %}
+
+  server:
+    type: OS::Nova::Server
+    properties:
+      image: Ubuntu 14.04 LTS (Trusty Tahr) (PVHVM)
+      flavor: 2 GB Performance
+      name: 
+        str_replace:
+          template: stack-server
+          params:
+            stack: { get_param: "OS::stack_name" }
+      networks:
+      {% if use_neutron|default(true, true)  %}
+      - port: { get_resource: port }
+      {% else %}
+      - uuid: { get_resource: network }
+      {% endif %}
+      metadata:
+        rax-heat: { get_param: "OS::stack_id" }
+        stack-name: { get_param: "OS::stack_name" }
