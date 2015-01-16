@@ -68,7 +68,7 @@ resources:
           params:
             stack: { get_param: "OS::stack_name" }
       networks:
-      {% if use_neutron|default(true, true)  %}
+      {% if use_neutron|default("true")|lower  == 'true' %}
       - port: { get_resource: port }
       {% else %}
       - uuid: { get_resource: network }
