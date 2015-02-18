@@ -1,0 +1,10 @@
+schema-version: 1.0.0
+application-family: Test
+application-name: Jinja_Templating_Test
+application-version: latest
+flavor: Single Linux server
+
+abstract: |
+  Experimental template to test Jinja Templating.
+instructions: |
+  Just run the template.
